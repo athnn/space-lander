@@ -29,16 +29,40 @@ import { assetLoader } from "./utils/assetLoader.js";
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Generate beautiful rocket sprite
-const beautifulRocketSprite = assetLoader.createRocketSprite();
+// Load pixel art sprites from web assets
+await assetLoader.loadImages({
+  'lander': './assets/lander-sprite.png',
+  'background': './assets/star-background.png',
+  'explosionSheet': './assets/explosion-frames.png',
+  'particle': './assets/particle-sprite.png',
+  'dust': './assets/dust-particle.png'
+});
+
+// Wait for all assets to load
+const assetsLoaded = await assetLoader.waitForAll();
+
+// Extract explosion frames from sprite sheet (4 frames, 48x48 each)
+function extractExplosionFrames() {
+  const sheet = assetLoader.get('explosionSheet');
+  const frames = [];
+  for (let i = 0; i < 4; i++) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 48;
+    canvas.height = 48;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(sheet, i * 48, 0, 48, 48, 0, 0, 48, 48);
+    frames.push(canvas);
+  }
+  return frames;
+}
 
 // Load pixel art assets
 const gameAssets = {
-  landerSprite: beautifulRocketSprite, // Use the beautiful new rocket sprite!
-  starBackground: null, // Will be created on resize
-  explosionFrames: createExplosionSprites(),
-  particleSprite: createParticleSprite(),
-  dustSprite: createDustSprite(),
+  landerSprite: assetLoader.get('lander'), // Use pixel art sprite from the web!
+  starBackground: assetLoader.get('background'),
+  explosionFrames: assetsLoaded ? extractExplosionFrames() : createExplosionSprites(),
+  particleSprite: assetLoader.get('particle'),
+  dustSprite: assetLoader.get('dust'),
 };
 
 // Disable image smoothing for crisp pixel art
@@ -178,8 +202,8 @@ function resizeCanvas() {
   ctx.scale(dpr, dpr);
   ctx.imageSmoothingEnabled = false;
 
-  // Recreate star background for new size
-  gameAssets.starBackground = createStarBackground(viewWidth, viewHeight);
+  // Keep using the loaded star background (it will be tiled/stretched to fit)
+  // No need to recreate it on resize
 
   starfield.resize(viewWidth, viewHeight);
   terrain.resize(viewWidth, viewHeight);
@@ -479,8 +503,18 @@ function animate(now) {
 
   // Draw star background if available
   if (gameAssets.starBackground) {
-    ctx.globalAlpha = 0.6;
-    ctx.drawImage(gameAssets.starBackground, 0, 0, viewWidth, viewHeight);
+    ctx.globalAlpha = 0.8;
+    // Tile or stretch the background image to fill the screen
+    const bgWidth = gameAssets.starBackground.width;
+    const bgHeight = gameAssets.starBackground.height;
+    const scaleX = viewWidth / bgWidth;
+    const scaleY = viewHeight / bgHeight;
+    const scale = Math.max(scaleX, scaleY);
+    const drawWidth = bgWidth * scale;
+    const drawHeight = bgHeight * scale;
+    const offsetX = (viewWidth - drawWidth) / 2;
+    const offsetY = (viewHeight - drawHeight) / 2;
+    ctx.drawImage(gameAssets.starBackground, offsetX, offsetY, drawWidth, drawHeight);
     ctx.globalAlpha = 1.0;
   }
 
