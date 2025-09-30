@@ -1,4 +1,5 @@
 import { fraction, mphFromPixels } from "../utils/math.js";
+import { i18n } from "../utils/i18n.js";
 
 export function createEndOverlay({ overlay, elements }) {
   const {
@@ -32,12 +33,14 @@ export function createEndOverlay({ overlay, elements }) {
     stats,
   }) {
     overlay.classList.add("overlay--visible");
-    title.textContent = safe ? "Touchdown Confirmed" : "Vehicle Lost";
+    title.textContent = safe ? i18n.t("endTitleSuccess") : i18n.t("endTitleFailure");
     score.textContent = Intl.NumberFormat().format(Math.round(scoreValue));
-    outcome.textContent = safe ? "mission points" : "salvage rating";
+    outcome.textContent = safe ? i18n.t("endOutcomePoints") : i18n.t("endOutcomeSalvage");
+    
+    const padName = contactPad?.id ?? i18n.t("endSubtitleUnknownPad");
     subtitle.textContent = safe
-      ? `Telemetry nominal. ${contactPad?.id ?? "Unknown pad"} secured.`
-      : reason || "Structural integrity failure recorded.";
+      ? i18n.t("endSubtitleSuccess", { pad: padName })
+      : reason || i18n.t("endSubtitleFailure");
 
     const speedMph = mphFromPixels(touchdownSpeed);
     meterSpeed.style.setProperty("--percent", `${fraction(speedMph, 0, 40) * 100}%`);
@@ -54,7 +57,7 @@ export function createEndOverlay({ overlay, elements }) {
     flips.textContent = `${stats.flips}`;
     pad.textContent = contactPad
       ? `${contactPad.id} (${contactPad.difficulty})`
-      : "No pad";
+      : i18n.t("endLabelNoPad");
   }
 
   return {

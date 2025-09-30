@@ -5,6 +5,8 @@ import { createEndOverlay } from "./ui/endOverlay.js";
 import { createTouchControls } from "./ui/touchControls.js";
 import { createToast } from "./ui/toast.js";
 import { createKeyboardController } from "./input/keyboard.js";
+import { createLanguageSelector } from "./ui/languageSelector.js";
+import { i18n } from "./utils/i18n.js";
 import { Starfield } from "./systems/starfield.js";
 import { Terrain } from "./systems/terrain.js";
 import { ParticleSystem } from "./systems/particleSystem.js";
@@ -96,6 +98,7 @@ const physicsControls = createPhysicsControls({
   massLabel: document.getElementById("massValue"),
 });
 const approachIndicator = createApproachIndicator(canvas);
+const languageSelector = createLanguageSelector(document.getElementById("languageSelector"));
 
 const starfield = new Starfield(240);
 const terrain = new Terrain(viewWidth, viewHeight);
@@ -308,7 +311,11 @@ function crashLander(reason, contactInfo) {
   cameraShake.intensity = 15;
   flashIntensity = 0.4;
 
-  concludeMission(false, contactInfo, reason);
+  // Translate crash reason if it's a standard one
+  const translatedReason = reason === "Impact detected" ? i18n.t("crashImpact") : 
+                           reason === "Out of bounds" ? i18n.t("crashOutOfBounds") : 
+                           reason;
+  concludeMission(false, contactInfo, translatedReason);
 }
 
 function concludeMission(safe, contactInfo, reason = "") {
@@ -401,7 +408,7 @@ function handleShare() {
   } else {
     if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(summary).then(() => {
-        toast.show("Stats copied");
+        toast.show(i18n.t("toastStatsCopied"));
       });
     }
   }
@@ -412,10 +419,10 @@ function handleCopy() {
   const summary = formatMissionSummary(latestShareData.summary);
   if (navigator.clipboard?.writeText) {
     navigator.clipboard.writeText(summary).then(() => {
-      toast.show("Stats copied");
+      toast.show(i18n.t("toastStatsCopied"));
     });
   } else {
-    toast.show("Clipboard unavailable");
+    toast.show(i18n.t("toastClipboardUnavailable"));
   }
 }
 
@@ -423,8 +430,8 @@ function togglePadGuide(button) {
   showLandingPads = !showLandingPads;
   terrain.setShowPads(showLandingPads);
   button.textContent = showLandingPads
-    ? LANDING_GUIDE_LABELS.hide
-    : LANDING_GUIDE_LABELS.show;
+    ? i18n.t("buttonHideGuide")
+    : i18n.t("buttonShowGuide");
 }
 
 function animate(now) {
@@ -602,12 +609,47 @@ document.getElementById("quitToBriefing").addEventListener("click", () => {
 document.getElementById("shareStats").addEventListener("click", handleShare);
 document.getElementById("copyStats").addEventListener("click", handleCopy);
 
+// Function to update all translatable elements in the DOM
+function updateTranslations() {
+  // Update all elements with data-i18n attribute
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    const key = element.getAttribute("data-i18n");
+    element.textContent = i18n.t(key);
+  });
+
+  // Update all elements with data-i18n-html attribute (allows HTML like <br>)
+  document.querySelectorAll("[data-i18n-html]").forEach((element) => {
+    const key = element.getAttribute("data-i18n-html");
+    element.innerHTML = i18n.t(key);
+  });
+
+  // Update toggle pads button
+  togglePadsButton.textContent = showLandingPads
+    ? i18n.t("buttonHideGuide")
+    : i18n.t("buttonShowGuide");
+
+  // Update page title
+  document.title = i18n.t("pageTitle");
+
+  // Force HUD update to refresh status text
+  updateHud(mode === Modes.ENDED ? lander.stats.time : 
+            mode === Modes.PLAYING && missionStart ? (performance.now() - missionStart) / 1000 : 0);
+}
+
+// Listen for language changes
+i18n.onChange(() => {
+  updateTranslations();
+});
+
 resizeCanvas();
 setMode(Modes.INTRO);
-togglePadsButton.textContent = LANDING_GUIDE_LABELS.show;
+togglePadsButton.textContent = i18n.t("buttonShowGuide");
+// Initialize translations on load
+updateTranslations();
 frameRequestId = requestAnimationFrame(animate);
 
 window.addEventListener("beforeunload", () => {
   keyboardController.dispose();
+  languageSelector.dispose();
   cancelAnimationFrame(frameRequestId);
 });
