@@ -1,5 +1,6 @@
 import { DEG, Modes, WORLD } from "../config/constants.js";
 import { mphFromPixels } from "../utils/math.js";
+import { i18n } from "../utils/i18n.js";
 
 export function createHud({
   fuel,
@@ -49,16 +50,16 @@ export function createHud({
     time.textContent = `${safeMissionTime.toFixed(1)} s`;
 
     if (lander.landed) {
-      status.textContent = "Landed";
+      status.textContent = i18n.t("statusLanded");
       status.className = "success";
     } else if (lander.crashed) {
-      status.textContent = "Crashed";
+      status.textContent = i18n.t("statusCrashed");
       status.className = "fail";
     } else if (mode === Modes.PLAYING) {
-      status.textContent = altitudeFt < 120 ? "Final Approach" : "In Flight";
+      status.textContent = altitudeFt < 120 ? i18n.t("statusFinalApproach") : i18n.t("statusInFlight");
       status.className = "";
     } else {
-      status.textContent = "Standby";
+      status.textContent = i18n.t("statusStandby");
       status.className = "";
     }
   }
