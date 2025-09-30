@@ -4,7 +4,15 @@ This folder is for storing pixel art and other game assets.
 
 ## Current Assets
 
-The game currently uses **programmatically generated pixel art** created in `scripts/utils/pixelArt.js`.
+The game now uses **real pixel art sprites** downloaded from the web:
+
+- **lander-sprite.png** - Spaceship/lander sprite from OpenGameArt.org
+- **star-background.png** - Space background with stars from OpenGameArt.org
+- **explosion-frames.png** - 4-frame explosion animation sprite sheet
+- **particle-sprite.png** - Particle effect for engine thrust
+- **dust-particle.png** - Dust particle for landing effects
+
+These replace the previously programmatically generated pixel art.
 
 ## How to Add Your Own Pixel Art
 
