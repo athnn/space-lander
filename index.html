@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Lander</title>
+    
+    <link rel="stylesheet" href="./styles/main.css">
+
+</head>
+<body>
+    <div class="game">
+        <canvas id="gameCanvas" width="1280" height="720"></canvas>
+        <div class="hud" id="hud">
+            <div class="hud__item" data-role="fuel">Fuel<strong id="hudFuel">100%</strong></div>
+            <div class="hud__item">Speed<strong id="hudSpeed">0 mph</strong></div>
+            <div class="hud__item">Vertical<strong id="hudVertical">0 mph</strong></div>
+            <div class="hud__item">Horizontal<strong id="hudHorizontal">0 mph</strong></div>
+            <div class="hud__item">Angle<strong id="hudAngle">0°</strong></div>
+            <div class="hud__item">Altitude<strong id="hudAltitude">0 ft</strong></div>
+            <div class="hud__item">Time<strong id="hudTime">0.0 s</strong></div>
+            <div class="hud__item" data-role="status">Status<strong id="hudStatus" class="">Standby</strong></div>
+        </div>
+        <div class="touchControls" id="touchControls">
+            <div class="touchControls__button" data-control="rotateLeft">Rotate<br>Left</div>
+            <div class="touchControls__button" data-control="thrust">Main<br>Engine</div>
+            <div class="touchControls__button" data-control="rotateRight">Rotate<br>Right</div>
+            <div class="touchControls__button" data-control="auxThrust">Landing<br>Burn</div>
+        </div>
+        <div class="tuningPanel" id="tuningPanel">
+            <div class="tuningPanel__group">
+                <label for="thrustSlider">Thrust Output</label>
+                <input type="range" id="thrustSlider" min="0.6" max="1.6" step="0.02" value="1">
+                <span class="tuningPanel__value" id="thrustValue">100%</span>
+            </div>
+            <div class="tuningPanel__group">
+                <label for="massSlider">Vehicle Mass</label>
+                <input type="range" id="massSlider" min="0.6" max="1.8" step="0.02" value="1">
+                <span class="tuningPanel__value" id="massValue">1.0x</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay overlay--visible" id="instructionsOverlay">
+        <div class="overlay__panel">
+            <h1>Welcome Commander</h1>
+            <p>Your mission is to guide the Space Lander to a safe touchdown on a lit landing pad. Keep your velocity low, stay upright, and watch that fuel gauge. Use advanced landing systems to assist your approach.</p>
+            <div class="instructions__layout">
+                <div class="instructions__card">
+                    <h2>Flight Controls</h2>
+                    <ul>
+                        <li><span>⬆️</span> Throttle the main engine</li>
+                        <li><span>⬅️</span> Rotate left</li>
+                        <li><span>➡️</span> Rotate right</li>
+                        <li><span>⬇️</span> Engage landing burn</li>
+                        <li><span>Z</span> Autopilot stabilization</li>
+                        <li><span>R</span> Go around (retry approach)</li>
+                        <li><span>Space</span> Quick restart during flight</li>
+                    </ul>
+                </div>
+                <div class="instructions__card">
+                    <h2>Landing Systems</h2>
+                    <ul>
+                        <li><strong>Approach Indicator:</strong> Yellow vector shows velocity direction</li>
+                        <li><strong>Impact Predictor:</strong> Red line shows predicted touchdown point</li>
+                        <li><strong>Landing Lights:</strong> Auto-activate below 300ft</li>
+                        <li><strong>Pad Beacon:</strong> Pulsing glow guides you to safe zones</li>
+                        <li><strong>HUD Warnings:</strong> Display changes color when limits exceeded</li>
+                        <li><strong>Slow Motion:</strong> Time slows below 50ft for precision</li>
+                    </ul>
+                </div>
+                <div class="instructions__card">
+                    <h2>System Check</h2>
+                    <ul>
+                        <li><input type="checkbox" data-control-check="engine"> Main engine</li>
+                        <li><input type="checkbox" data-control-check="left"> Rotate left</li>
+                        <li><input type="checkbox" data-control-check="right"> Rotate right</li>
+                        <li><input type="checkbox" data-control-check="combo"> Thrust + rotate</li>
+                    </ul>
+                    <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">Touch: Tap center for thrust, sides for rotation</p>
+                </div>
+            </div>
+            <div class="buttonRow">
+                <button class="actionButton" id="startMission">Launch Mission</button>
+                <button class="actionButton actionButton--ghost" id="togglePads">Show Landing Guide</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="endOverlay">
+        <div class="overlay__panel">
+            <div class="endStats__header">
+                <h1 id="endTitle">Mission Report</h1>
+                <div class="endStats__scoreLine"><strong id="endScore">0</strong><span id="endOutcome">points</span></div>
+                <p id="endSubtitle">Awaiting telemetry…</p>
+            </div>
+            <div class="meterGroup">
+                <div class="meter">
+                    <div class="meter__label">Touchdown Speed</div>
+                    <div class="meter__bar"><div class="meter__cursor" id="meterSpeed"></div></div>
+                    <div class="meter__value" id="meterSpeedValue">0 mph</div>
+                </div>
+                <div class="meter">
+                    <div class="meter__label">Touchdown Angle</div>
+                    <div class="meter__bar"><div class="meter__cursor" id="meterAngle"></div></div>
+                    <div class="meter__value" id="meterAngleValue">0°</div>
+                </div>
+            </div>
+            <div class="endStats__grid">
+                <div class="endStats__card"><span class="label">Mission Time</span><span class="value" id="statTime">0.0 s</span></div>
+                <div class="endStats__card"><span class="label">Fuel Remaining</span><span class="value" id="statFuel">0%</span></div>
+                <div class="endStats__card"><span class="label">Max Speed</span><span class="value" id="statMaxSpeed">0 mph</span></div>
+                <div class="endStats__card"><span class="label">Max Altitude</span><span class="value" id="statMaxAltitude">0 ft</span></div>
+                <div class="endStats__card"><span class="label">Flips</span><span class="value" id="statFlips">0</span></div>
+                <div class="endStats__card"><span class="label">Landing Pad</span><span class="value" id="statPad">—</span></div>
+            </div>
+            <div class="endStats__actions">
+                <button class="actionButton" id="playAgain">Retry</button>
+                <button class="actionButton" id="shareStats">Share</button>
+                <button class="actionButton actionButton--ghost" id="copyStats">Copy Stats</button>
+                <button class="actionButton actionButton--danger" id="quitToBriefing">Main Menu</button>
+            </div>
+        </div>
+    </div>
+    <div class="toast" id="toast">Copied!</div>
+
+    <script>
+        (function loadGameScript() {
+            if (window.location.protocol === 'file:') {
+                var fallback = document.createElement('script');
+                fallback.src = './scripts/bundle.js';
+                document.body.appendChild(fallback);
+            } else {
+                var moduleScript = document.createElement('script');
+                moduleScript.type = 'module';
+                moduleScript.src = './scripts/main.js';
+                document.body.appendChild(moduleScript);
+            }
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autopilot Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-info { background: #f0f0f0; padding: 15px; border-radius: 5px; margin: 10px 0; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Space Lander Autopilot Test</h1>
+    
+    <div class="test-info">
+        <h3>Test Instructions:</h3>
+        <ol>
+            <li>Open the game at <a href="http://localhost:8000" target="_blank">http://localhost:8000</a></li>
+            <li>Click "Launch Mission" to start</li>
+            <li>Press and hold <strong>Z key</strong> to activate autopilot</li>
+            <li>Observe the lander's behavior</li>
+        </ol>
+    </div>
+
+    <div class="test-info success">
+        <h3>✅ Expected Autopilot Behavior:</h3>
+        <ul>
+            <li><strong>Automatic Stabilization:</strong> Lander should automatically rotate to upright position (0° angle)</li>
+            <li><strong>Rotation Damping:</strong> Should reduce rotation velocity when spinning</li>
+            <li><strong>Auto-Thrust:</strong> Should engage auxiliary thrust when altitude < 200ft and velocity > 0.3</li>
+            <li><strong>Fuel Dependent:</strong> Only works when fuel > 0</li>
+        </ul>
+    </div>
+
+    <div class="test-info warning">
+        <h3>⚠️ Known Issues Fixed:</h3>
+        <ul>
+            <li><strong>Bug Fixed:</strong> Z key was not properly connected to autopilot system</li>
+            <li><strong>Solution:</strong> Added autopilot control handling in setControlState function</li>
+            <li><strong>Status:</strong> Bundle rebuilt with fix applied</li>
+        </ul>
+    </div>
+
+    <div class="test-info">
+        <h3>🔧 Technical Details:</h3>
+        <ul>
+            <li><strong>Key Mapping:</strong> KeyZ → "autopilot"</li>
+            <li><strong>Target Angle:</strong> -Math.PI / 2 (upright)</li>
+            <li><strong>Angle Tolerance:</strong> 0.05 radians</li>
+            <li><strong>Rotation Damping:</strong> -lander.rotationVelocity * 0.3</li>
+            <li><strong>Auto-Thrust Trigger:</strong> altitude < 200ft AND |velocity.y| > 0.3</li>
+        </ul>
+    </div>
+
+    <script>
+        // Simple test to verify the game loads
+        fetch('http://localhost:8000')
+            .then(response => {
+                if (response.ok) {
+                    document.body.innerHTML += '<div class="test-info success"><h3>✅ Server Status: Online</h3><p>Game server is running and accessible.</p></div>';
+                } else {
+                    document.body.innerHTML += '<div class="test-info error"><h3>❌ Server Status: Error</h3><p>Game server returned error: ' + response.status + '</p></div>';
+                }
+            })
+            .catch(error => {
+                document.body.innerHTML += '<div class="test-info error"><h3>❌ Server Status: Offline</h3><p>Cannot connect to game server: ' + error.message + '</p></div>';
+            });
+    </script>
+</body>
+</html>

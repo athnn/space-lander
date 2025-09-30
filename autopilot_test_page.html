@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autopilot Test - Space Lander</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #ffd700;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #ffd700;
+        }
+        .success { border-left-color: #4CAF50; }
+        .warning { border-left-color: #FF9800; }
+        .error { border-left-color: #F44336; }
+        .info { border-left-color: #2196F3; }
+        
+        .key {
+            background: #333;
+            color: #ffd700;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+        
+        .game-link {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .game-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .test-steps {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .test-steps ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .test-steps li {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-success { background: #4CAF50; }
+        .status-warning { background: #FF9800; }
+        .status-error { background: #F44336; }
+        .status-info { background: #2196F3; }
+        
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            border-left: 3px solid #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Space Lander Autopilot Test</h1>
+        
+        <div class="test-section success">
+            <h3><span class="status-indicator status-success"></span>Bug Fix Applied ✅</h3>
+            <p>The critical autopilot bug has been fixed! The Z key is now properly connected to the autopilot system.</p>
+            <div class="code-block">
+                // Added missing autopilot handler in setControlState function
+                if (control === "autopilot") {
+                    inputState.autopilot = active;
+                }
+            </div>
+        </div>
+
+        <div class="test-section info">
+            <h3><span class="status-indicator status-info"></span>Test Instructions</h3>
+            <div class="test-steps">
+                <ol>
+                    <li>Click the "Launch Game" button below to open the game</li>
+                    <li>Click <strong>"Launch Mission"</strong> to start the mission</li>
+                    <li>Press and hold the <span class="key">Z</span> key to activate autopilot</li>
+                    <li>Observe the lander's automatic behavior</li>
+                    <li>Release <span class="key">Z</span> to deactivate autopilot</li>
+                </ol>
+            </div>
+        </div>
+
+        <div class="test-section warning">
+            <h3><span class="status-indicator status-warning"></span>Expected Autopilot Behavior</h3>
+            <ul>
+                <li><strong>Automatic Stabilization:</strong> Lander rotates to upright position (0° angle)</li>
+                <li><strong>Rotation Damping:</strong> Reduces spinning and oscillation</li>
+                <li><strong>Auto-Thrust:</strong> Engages auxiliary thrust when altitude < 200ft and velocity > 0.3</li>
+                <li><strong>Fuel Dependent:</strong> Only works when fuel > 0</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3><span class="status-indicator status-info"></span>Technical Details</h3>
+            <ul>
+                <li><strong>Key Mapping:</strong> <span class="key">KeyZ</span> → "autopilot"</li>
+                <li><strong>Target Angle:</strong> -π/2 radians (upright)</li>
+                <li><strong>Angle Tolerance:</strong> 0.05 radians (~2.9°)</li>
+                <li><strong>Auto-Thrust Trigger:</strong> altitude < 200ft AND |velocity.y| > 0.3</li>
+                <li><strong>Rotation Damping:</strong> -rotationVelocity * 0.3</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center;">
+            <a href="http://localhost:8000" target="_blank" class="game-link">
+                🚀 Launch Game & Test Autopilot
+            </a>
+        </div>
+
+        <div class="test-section">
+            <h3><span class="status-indicator status-info"></span>Test Results</h3>
+            <p>After testing, you should observe:</p>
+            <ul>
+                <li>✅ Lander automatically rotates to upright position when Z is held</li>
+                <li>✅ Smooth, controlled rotation without overshooting</li>
+                <li>✅ Automatic thrust assistance when landing</li>
+                <li>✅ Autopilot deactivates when Z is released</li>
+            </ul>
+        </div>
+
+        <div class="test-section error">
+            <h3><span class="status-indicator status-error"></span>If Autopilot Doesn't Work</h3>
+            <p>If the autopilot doesn't respond:</p>
+            <ol>
+                <li>Make sure you're holding the <span class="key">Z</span> key (not just pressing it)</li>
+                <li>Check that the lander has fuel (autopilot requires fuel > 0)</li>
+                <li>Verify the game is in "In Flight" mode (not crashed or landed)</li>
+                <li>Try refreshing the page to ensure the latest code is loaded</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Check server status
+        fetch('http://localhost:8000')
+            .then(response => {
+                if (response.ok) {
+                    console.log('✅ Game server is running');
+                } else {
+                    console.log('❌ Game server error:', response.status);
+                }
+            })
+            .catch(error => {
+                console.log('❌ Cannot connect to game server:', error.message);
+            });
+    </script>
+</body>
+</html>
